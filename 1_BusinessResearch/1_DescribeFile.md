@@ -37,19 +37,26 @@
 > 需求调研和业务的梳理不存在一次做成，需要不断的迭代和完善。
 
 
-
-
 ## 2 分析业务流程
 
 本节主要分析`Github`开源项目中，梳理出来了以下业务流程： 
+
+1. `开发者提出issue` - `分配协作者` - `协作者和开发者讨论` - `issue解决被关闭`
+
+2. `fock仓库` - `创建分支` - `push代码` - `提出拉取请求` - `分配reviewer` - `审查意见` - `拉取请求合并` - `删除分支`
+
+3. `管理员发布仓库版本` - `上传版本附带资源`
+
+下面是对业务流程中的一些业务进行细化：
 - **代码提交**：开发者通过Git工具向Github仓库提交代码。这些提交会被记录在日志中，并包含提交的作者、时间戳和提交的内容
 - **Pull Requests**：开发者通过创建Pull Requests来向仓库的管理员请求合并他们的代码。这些请求会被记录在日志中，并包含请求的作者、时间戳、请求的标题和请求的状态
 - **Issues**：开发者通过创建Issues来报告问题或请求新功能。这些Issues会被记录在日志中，并包含问题的作者、时间戳、问题的标题和问题的状态
 - **合并代码**：管理员通过合并Pull Requests来将开发者的代码合并到主分支中。这些合并会被记录在日志中，并包含合并的作者、时间戳和合并的内容
 - **分支管理**：管理员通过创建、删除和合并分支来管理仓库中的代码。这些操作会被记录在日志中，并包含操作的作者、时间戳和操作的类型
 - **代码审核**：管理员通过审查Pull Requests来确保代码的质量和正确性。这些审查会被记录在日志中，并包含审查的作者、时间戳和审查的结果
+- **仓库管理**：管理员管理仓库的版本，上传版本负附带资源，包括版本的信息，资源信息都会记录在日志中
 
-在`Github`中针对开发者的行为主要有两方面:
+综上在`Github`中针对开发者的行为主要有两方面:
 - 开发者向仓库提问 `issue`
 - 开发者为仓库贡献代码
 
@@ -67,36 +74,23 @@
 
 根据`3节`中梳理出来的业务过程划分主题域（数据域），以及主题域下含包含的业务过程（加粗的为主题域，下面的为一个个不可拆分的业务过程）
 
-**代码提交和版本控制**： 
-- Git提交
-- 分支管理
-- 合并代码
 
-**Pull Requests管理**：
-- 创建
-- 审查
-- 合并
-- 关闭Pull Requests
+**issue域**
+- 开发者提出issue
+- 协作者/ 开发者在issue下进行讨论
 
-**问题管理：**
-- 创建
-- 标记
-- 关闭
-- 评论Issues
+**pull request域**
+- 开发者fock仓库
+- 开发者创建资源/分支/
+- 开发者push代码
+- 开发者的pull request
+- reviewer审查 pull request
+- 拉去请求被合并
+- 开发者删除分支/资源/
 
-**仓库和项目管理：**
-- 创建和删除仓库
-- 创建和删除项目
-- 创建和删除分支
-
-**用户管理：**
-- 添加
-- 删除
-- 更新用户
-
-**系统和日志管理：**
-- 记录、备份、维护系统
-- 记录、备份、维护日志
+**仓库域**
+- 管理员发布仓库版本
+- 管理员上传版本附带资源
 
 
 主题域是通过梳理出来的业务过程来进行提炼的，需要注意的是业务过程梳理不清楚会导致数据域划分的问题。所以这个事情并不是一蹴而就的，需要不断地理解梳理然后进行完善，这些直接影响到数仓的健壮程度。
@@ -118,7 +112,7 @@
 3. 确认维度
 4. 确认事实
 
-首先选择业务过程，可以通过不同主题域下的业务过程来进行处理，这里选取`Pull Requests管理`域下的业务过程来作为例子：`创建`，`审查`，`合并`，`关闭`；
+首先选择业务过程，可以通过不同主题域下的业务过程来进行处理，这里选取`Pull Requests`域下的业务过程来作为例子：`创建`，`审查`，`合并`，`关闭`；
 
 然后选择粒度：在`审查`这个业务流程中，一行数据代表了 reviewer 对代码的一次审查记录
 
@@ -126,26 +120,11 @@
 
 ### 4.2 确认维度
 
-根据上面的过程，最终确认的维度有（加粗的为主题域，下面的为主题域下的维度）：
-
-1. 用户维度
-2. 仓库维度
-3. 组织维度
-4. issue维度
-5. issue标签维度
-6. issue作者维度
-7. issue指派热维度
-8. issue评论维度
-10. pull request维度
-11. pull request审查维度
-12. 推送push维度
-13. 组织成员维度
-14. 版本发布维度
-15. 发布资源维度
+根据上面的过程，最终确认的维度有：
+**开发者/ 仓库/ 组织/**
 
 确认维度的依据：
 1. 确定主维表，因为没有其他业务表，只有clickhouse中一张日志表，所以将该表作为ODS层数据，同时也选择该表作为主维表。 主维表包含了上面的所有维度
-
 2. 确定相关维表，相关维表是其他业务系统和该主维表相关联的，选择其中某些表生成维度属性。这里因为没有其他的业务系统的数据，所以直接从主维表中确定维度。
 3. 确认维表的属性，可以从主维表中选择表字段作为维表的属性/ 也可以从相关维表中选择字段作为维表的属性
 
@@ -158,106 +137,5 @@
 4. 沉淀出通用的维度属性
 5. 将不常用的维度属性，如果无法抽取出来可以直接留在事实表中
 > 降低公司的成本，权衡利弊，降低存储，计算资源。
-
-### 4.3 确认维度属性
-
-目前根据上面的注意事项，确定了以下维度及其属性字段（加粗是维度，后面跟着维度属性）：
-
-**1. 用户维度**
-- github_id
-- github_name
-- github_type
-
-**2. 仓库维度**
-- repo_id
-- repo_name
-
-**3. 组织维度**
-- org_id
-- org_login
-
-**4. issue维度**
-- issue_id
-- repo_id (关联 仓库维度)
-- issue_number
-- issue_title
-- issue_body
-
-**5. issue标签维度**
-- github_id (关联开发者维度)
-- issue_id (关联 issue 维度)
-- repo_id  (关联 仓库维度)
-- issue_labels_name
-- issue_labels_color
-- issue_labels_default
-- issue_labels_description
-
-**6. issue作者维度**
-- github_id
-- github_login
-- github_type
-- issue_id (关联 issue 维度)
-- author_association
-
-**7. issue指派人维度**
-- github_id (关联开发者维度)
-- issue_id (关联 issue 维度)
-- assignee_id
-- assignee_login
-
-**8. issue评论维度**
-- github_id (关联开发者维度)
-- issue_id
-- comment_id
-- comment_body
-
-**10. pull request维度**
-- repo_id (关联 仓库维度)
-- issue_id (关联 issue 维度)
-- pull_merged
-- pull_merged_commit_sha
-- pull_merged_at
-- pull_merged_by_login
-
-**11. pull request审查人维度**
-- repo_id (关联仓库维度)
-- pull_review_comment_id
-- pull_review_comment_body
-- pull_review_comment_create
-
-**12. 推送push维度**
-- github_id(关联开发者维度)
-- push_id
-- push_ref
-- push_head
-
-**13. 组织成员维度**
-- org_id (关联组织维度)
-- member_github_id
-- member_github_login
-- member_github_type
-
-**14. 版本发布维度**
-- github_id (关联开发者维度)
-- repo_id (关联仓库维度)
-- release_id
-- release_tag_name
-- release_target_commitish
-- release_name
-- release_draft
-- release_author_id
-- release_author_login
-- release_prerelease
-
-**15. 发布资源维度**
-- github_id (关联开发者维度)
-- repo_id (关联仓库维度)
-- release_assets_name
-- release_assets_uploader_login
-- release_assets_content_type
-- release_asset_state
-- release_asset_size
-
-> 维度属性的确定，但从思考调研中确定不具备说服力，在数仓中使用时，还观察对查询的性能以及使用的方便程度。
 
 
