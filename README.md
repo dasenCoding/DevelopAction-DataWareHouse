@@ -2,7 +2,7 @@
 This project builds an offline data warehouse based on the 2020 Github annual logs provided by OpenDigger. 
 
 ## pre.为什么想自己搭建数仓🦄
-在次之前，已经在B站学习过电商数仓项目，但是学完总感觉空落落的，感觉学了东西，又感觉没有学东西。
+在此之前，已经在B站学习过电商数仓项目，但是学完总感觉空落落的，感觉学了东西，又感觉没有学东西。
 很幸运的是学校与华师大X-Lab实验室有交集，并了解到了该实验室的开源项目OpenDigger，并且提供了2020年GitHub的全域开发者行为数据，
 
 目前来说，
