@@ -73,3 +73,10 @@
 2. 下载 OSS 数据压缩包(全域数据的压缩包，大概 81GB, 可以先存在服务器中，后面还需要挂在一块1T云盘)：
 
 `wget https://oss.x-lab.info/sample_data/2020_full.tar.gz`
+
+
+## 3 数据准备
+
+数据已经存储到阿里云服务器中，以json的格式存储。
+
+后续通过flume/ sqoop/ kafka/ 模拟采集通道, 模拟数据的采集方式。
